@@ -13923,6 +13923,7 @@ MonoBehaviour:
   moveSpeed: 5
   sprintMultiplier: 1.5
   cam: {fileID: 24416517}
+  heldItem: {fileID: 0}
 --- !u!1 &1677807203
 GameObject:
   m_ObjectHideFlags: 0

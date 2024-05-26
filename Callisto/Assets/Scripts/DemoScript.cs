@@ -53,7 +53,7 @@ private void OnTriggerEnter(Collider other)
 {
     if (other.CompareTag("Player")) {
         if (item != null) {
-            PickupItem(item);
+                PickupItem(item);
         } else {
             Debug.LogError("Item not set for trigger");
         }
