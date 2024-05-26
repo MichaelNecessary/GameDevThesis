@@ -5,17 +5,14 @@
 public class PlayerBHV : MonoBehaviour
 {
     public float moveSpeed = 5f;
-
     public float sprintMultiplier = 1.5f;
-
     public Camera cam;
     public static string save;
-
     Rigidbody rigidBody;
-
     Vector3 movement;
-
     Vector3 mousePos;
+
+    public GameObject heldItem;
 
     public static string getSave()
     {
