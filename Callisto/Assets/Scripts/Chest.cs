@@ -54,6 +54,7 @@ public class Chest : MonoBehaviour
         else
         {
             Debug.Log("Chest closed!");
+            GetItemsFromChestWithCounts();
         }
         UpdateChestUI();
     }
@@ -83,23 +84,39 @@ public class Chest : MonoBehaviour
         }
     }
 
-     public List<InventoryItem> GetItemsFromChest()
+public Dictionary<string, int> GetItemsFromChestWithCounts()
+{
+    Dictionary<string, int> itemCounts = new Dictionary<string, int>();  // Dictionary to store item counts
+
+    // Check each slot in the chest
+    for (int i = 0; i < chestSlots.Length; i++)
     {
-        List<InventoryItem> items = new List<InventoryItem>();  // Local list to store items
+        InventorySlot slot = chestSlots[i];
+        InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
 
-        for (int i = 0; i < chestSlots.Length; i++)
+        if (itemInSlot != null && itemInSlot.item != null)
         {
-            InventorySlot slot = chestSlots[i];
-            InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
-            if (itemInSlot != null)
+            // Add item counts to the dictionary
+            if (itemCounts.ContainsKey(itemInSlot.item.itemName))
             {
-                items.Add(itemInSlot);
-                Debug.Log("Added " + itemInSlot.item.name + " to items from slot " + i);
+                itemCounts[itemInSlot.item.itemName] += itemInSlot.count;
             }
-        }
+            else
+            {
+                itemCounts[itemInSlot.item.itemName] = itemInSlot.count;
+            }
 
-        return items;  // Return the filled list of items
+            Debug.Log($"Slot {i}: {itemInSlot.item.itemName}, Quantity: {itemInSlot.count}");
+        }
+        else
+        {
+            Debug.Log($"Slot {i}: Empty");
+        }
     }
+
+    return itemCounts;  // Return the dictionary containing item names and their respective counts
+}
+
 
     public bool Openchest(){
         if(isOpen && chestUI.activeSelf){
