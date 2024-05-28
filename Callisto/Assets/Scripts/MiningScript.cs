@@ -8,16 +8,22 @@ public class MiningScript : MonoBehaviour
     public GameObject zlotoPrefab;
     public int health = 10;
 
-    [Range(0, 100)] public int kamienChance = 70;
-    [Range(0, 100)] public int srebroChance = 20;
-    [Range(0, 100)] public int zlotoChance = 10;
+    [Range(0, 100)] public int kamienChance = 60;
+    [Range(0, 100)] public int srebroChance = 25;
+    [Range(0, 100)] public int zlotoChance = 15;
 
-    public float miningRange = 2.0f;
+    public float miningRange = 7.0f;
+    private float spawnRadius;
+
     private GameObject player;
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
+
+        Collider collider = GetComponent<Collider>();
+        spawnRadius = collider.bounds.extents.magnitude;
+
     }
 
     void Update()
@@ -38,19 +44,27 @@ public class MiningScript : MonoBehaviour
 
             if (randomValue < kamienChance)
             {
-                Instantiate(kamienPrefab, transform.position + Vector3.up, Quaternion.identity);
+                SpawnItem(kamienPrefab);
             }
             else if (randomValue < kamienChance + srebroChance)
             {
-                Instantiate(srebroPrefab, transform.position + Vector3.up, Quaternion.identity);
+                SpawnItem(srebroPrefab);
             }
             else if (randomValue < kamienChance + srebroChance + zlotoChance)
             {
-                Instantiate(zlotoPrefab, transform.position + Vector3.up, Quaternion.identity);
+                SpawnItem(zlotoPrefab);
             }
 
             TakeDamage();
+
         }
+    }
+
+    void SpawnItem(GameObject itemPrefab)
+    {
+        Vector3 spawnPosition = transform.position + Random.insideUnitSphere * spawnRadius;
+        spawnPosition.y = transform.position.y;
+        Instantiate(itemPrefab, spawnPosition, Quaternion.identity);
     }
 
     void TakeDamage()
