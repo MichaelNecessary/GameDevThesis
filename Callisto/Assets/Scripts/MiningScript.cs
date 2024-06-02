@@ -91,7 +91,7 @@ public class MiningScript : MonoBehaviour
         if (miningParticlesPrefab != null)
         {
             Vector3 direction = (player.transform.position - transform.position).normalized;
-            Vector3 spawnPosition = player.transform.position - direction * 1f;
+            Vector3 spawnPosition = player.transform.position - direction * 2f;
             Quaternion rotation = Quaternion.LookRotation(direction);
 
             GameObject particles = Instantiate(miningParticlesPrefab, spawnPosition, rotation);
