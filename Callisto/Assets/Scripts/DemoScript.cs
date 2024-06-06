@@ -15,8 +15,9 @@ public class DemoScript : MonoBehaviour
         string details;
         Dictionary<string, int> usedChestItems;
         Dictionary<string, int>? remainingChestItems;
+        Dictionary<string, int>? missingItemsDict;
         bool craft =
-            inventoryManager.CheckRecipeIngredients(recipe, out details, out remainingChestItems, out usedChestItems);
+            inventoryManager.CheckRecipeIngredients(recipe, out details, out remainingChestItems, out usedChestItems, out missingItemsDict);
         if (craft)
         {
             Debug.Log("Mozna stworzyc kilofa");

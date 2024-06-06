@@ -9,7 +9,7 @@ public class InventoryManager : MonoBehaviour
 
     public InventorySlot[] inventorySlots;
     int selectedSlot =-1;
-    public Open open;
+
     public Chest chest;
     public GameObject inventoryItemPrefab;
 
@@ -126,34 +126,44 @@ public class InventoryManager : MonoBehaviour
         inventoryItem.InitialiseItem (item);
     }
 
-public bool CheckRecipeIngredients(Recipe recipe, out string inventoryContents, out Dictionary<string, int>? remainingChestItems, out Dictionary<string, int>? usedChestItems)
+public bool CheckRecipeIngredients(Recipe recipe, out string inventoryContents, out Dictionary<string, int>? remainingChestItems, out Dictionary<string, int>? usedChestItems, out Dictionary<string, int>? missingItemsDict)
 {
+    // Inicjalizacja słownika do przechowywania ilości przedmiotów w skrzyni
     Dictionary<string, int> chestCounts = new Dictionary<string, int>();
-    if (open.Openchest()) 
+    bool chestOpen = chest.Openchest();
+    if (chestOpen)
     {
+        // Pobieranie przedmiotów ze skrzyni
         chestCounts = chest.GetItemsFromChestWithCounts();
     }
 
+    // Inicjalizacja słowników wynikowych
     remainingChestItems = new Dictionary<string, int>(chestCounts);
     usedChestItems = new Dictionary<string, int>();
+    missingItemsDict = new Dictionary<string, int>();
 
+    // Inicjalizacja słownika do przechowywania ilości przedmiotów w inwentarzu
     Dictionary<string, int> inventoryCounts = new Dictionary<string, int>();
     inventoryContents = "";
     bool canCraft = true;
+
+    // Sprawdzanie zawartości skrzyni
     if (chestCounts.Count > 0)
     {
         inventoryContents += "Chest contents:\n";
         foreach (var item in chestCounts)
         {
             inventoryContents += $"{item.Key}: {item.Value}\n";
-            Debug.Log($"{item.Key}: {item.Value}"); 
+            Debug.Log($"{item.Key}: {item.Value}");
         }
     }
     else
     {
         inventoryContents += "The chest is empty.\n";
-        Debug.Log("The chest is empty."); 
+        Debug.Log("The chest is empty.");
     }
+
+    // Inicjalizacja słownika z ilościami składników przepisu
     foreach (Ingredient ingredient in recipe.ingredients)
     {
         if (!inventoryCounts.ContainsKey(ingredient.name))
@@ -161,6 +171,8 @@ public bool CheckRecipeIngredients(Recipe recipe, out string inventoryContents, 
             inventoryCounts[ingredient.name] = 0;
         }
     }
+
+    // Pobieranie zawartości inwentarza
     for (int i = 0; i < inventorySlots.Length; i++)
     {
         InventorySlot slot = inventorySlots[i];
@@ -188,98 +200,105 @@ public bool CheckRecipeIngredients(Recipe recipe, out string inventoryContents, 
         }
     }
 
+    // Sprawdzanie dostępności składników
     List<string> missingItems = new List<string>();
     foreach (Ingredient ingredient in recipe.ingredients)
     {
         int countNeeded = ingredient.quantity;
         int countAvailableFromInventory = inventoryCounts.ContainsKey(ingredient.name) ? inventoryCounts[ingredient.name] : 0;
-        int countAvailableFromChest = chestCounts.ContainsKey(ingredient.name) ? chestCounts[ingredient.name] : 0;
-        int totalAvailable = countAvailableFromInventory + countAvailableFromChest;
 
-        inventoryContents += $"{ingredient.name}: Needed {countNeeded}, Available {totalAvailable} (Inventory: {countAvailableFromInventory}, Chest: {countAvailableFromChest})\n";
-
-        if (totalAvailable < countNeeded)
+        // Porównanie ilości w inwentarzu z ilością w przepisie
+        if (countAvailableFromInventory > countNeeded)
         {
-            canCraft = false;
-            missingItems.Add($"{ingredient.name}: Missing {countNeeded - totalAvailable}");
+            int surplus = countAvailableFromInventory - countNeeded;
+            inventoryContents += $"Inventory has more {ingredient.name} than needed by {surplus} units.\n";
+            Debug.Log($"Inventory has more {ingredient.name} than needed by {surplus} units.");
         }
-    }
-    if (canCraft)
-    {
-        foreach (Ingredient ingredient in recipe.ingredients)
+        else if (countAvailableFromInventory < countNeeded)
         {
-            int countNeeded = ingredient.quantity;
-            int countAvailableFromInventory = inventoryCounts.ContainsKey(ingredient.name) ? inventoryCounts[ingredient.name] : 0;
-            int countAvailableFromChest = chestCounts.ContainsKey(ingredient.name) ? chestCounts[ingredient.name] : 0;
-            if (countAvailableFromInventory >= countNeeded)
+            int deficit = countNeeded - countAvailableFromInventory;
+            inventoryContents += $"Inventory has less {ingredient.name} than needed by {deficit} units.\n";
+            Debug.Log($"Inventory has less {ingredient.name} than needed by {deficit} units.");
+        }
+        else
+        {
+            inventoryContents += $"Inventory has exactly the needed amount of {ingredient.name}.\n";
+            Debug.Log($"Inventory has exactly the needed amount of {ingredient.name}.");
+        }
+
+        // Najpierw odejmujemy z inwentarza
+        if (countAvailableFromInventory >= countNeeded)
+        {
+            inventoryCounts[ingredient.name] -= countNeeded;
+            inventoryContents += $"Used {countNeeded} {ingredient.name} from inventory\n";
+            Debug.Log($"Used {countNeeded} {ingredient.name} from inventory");
+        }
+        else
+        {
+            int remainingNeed = countNeeded - countAvailableFromInventory;
+
+            // Odejmujemy z inwentarza, jeśli coś było dostępne
+            if (countAvailableFromInventory > 0)
             {
-                inventoryCounts[ingredient.name] -= countNeeded;
-                inventoryContents += $"Used {countNeeded} {ingredient.name} from inventory\n";
+                inventoryCounts[ingredient.name] = 0;
+                inventoryContents += $"Used {countAvailableFromInventory} {ingredient.name} from inventory\n";
+                Debug.Log($"Used {countAvailableFromInventory} {ingredient.name} from inventory");
             }
-            else if (countAvailableFromChest >= countNeeded)
+
+            // Sprawdzamy i odejmujemy resztę ze skrzyni
+            if (remainingNeed > 0)
             {
-                chestCounts[ingredient.name] -= countNeeded;
+                int countAvailableFromChest = chestCounts.ContainsKey(ingredient.name) ? chestCounts[ingredient.name] : 0;
 
-                remainingChestItems[ingredient.name] = chestCounts[ingredient.name];
-
-                if (usedChestItems.ContainsKey(ingredient.name))
+                if (chestOpen && countAvailableFromChest >= remainingNeed)
                 {
-                    usedChestItems[ingredient.name] += countNeeded;
+                    chestCounts[ingredient.name] -= remainingNeed;
+                    remainingChestItems[ingredient.name] = chestCounts[ingredient.name];
+
+                    if (usedChestItems.ContainsKey(ingredient.name))
+                    {
+                        usedChestItems[ingredient.name] += remainingNeed;
+                    }
+                    else
+                    {
+                        usedChestItems[ingredient.name] = remainingNeed;
+                    }
+
+                    inventoryContents += $"Used {remainingNeed} {ingredient.name} from the chest\n";
+                    Debug.Log($"Used {remainingNeed} {ingredient.name} from the chest. Remaining {chestCounts[ingredient.name]} in the chest.");
+                }
+                else if (chestOpen && countAvailableFromChest < remainingNeed)
+                {
+                    canCraft = false;
+                    int missingAmount = remainingNeed - countAvailableFromChest;
+                    missingItemsDict[ingredient.name] = missingAmount;
+                    inventoryContents += $"Missing {missingAmount} {ingredient.name} from the chest.\n";
+                    Debug.Log($"{ingredient.name}: Missing {missingAmount}");
                 }
                 else
                 {
-                    usedChestItems[ingredient.name] = countNeeded;
+                    canCraft = false;
+                    inventoryContents += $"Cannot craft because the chest is not open and {remainingNeed} {ingredient.name} is needed.\n";
+                    Debug.Log($"Cannot craft because the chest is not open and {remainingNeed} {ingredient.name} is needed.");
                 }
-
-                inventoryContents += $"Used {countNeeded} {ingredient.name} from the chest\n";
-                Debug.Log($"Used {countNeeded} {ingredient.name} from the chest. Remaining {chestCounts[ingredient.name]} in the chest.");
-            }
-            else if (countAvailableFromInventory + countAvailableFromChest >= countNeeded)
-            {
-                int remainingNeed = countNeeded - countAvailableFromInventory;
-
-                if (countAvailableFromInventory > 0)
-                {
-                    inventoryCounts[ingredient.name] = 0;
-                    inventoryContents += $"Used {countAvailableFromInventory} {ingredient.name} from inventory\n";
-                }
-
-                chestCounts[ingredient.name] -= remainingNeed;
-                remainingChestItems[ingredient.name] = chestCounts[ingredient.name];
-
-                if (usedChestItems.ContainsKey(ingredient.name))
-                {
-                    usedChestItems[ingredient.name] += remainingNeed;
-                }
-                else
-                {
-                    usedChestItems[ingredient.name] = remainingNeed;
-                }
-
-                inventoryContents += $"Used {remainingNeed} {ingredient.name} from the chest\n";
-                Debug.Log($"Used {remainingNeed} {ingredient.name} from the chest. Remaining {chestCounts[ingredient.name]} in the chest.");
-            }
-            else
-            {
-                canCraft = false;
-                missingItems.Add($"{ingredient.name}: Missing {countNeeded - (countAvailableFromInventory + countAvailableFromChest)}");
             }
         }
     }
-    if (missingItems.Count > 0)
+
+    // Dodawanie informacji o brakujących składnikach
+    if (missingItemsDict.Count > 0)
     {
         inventoryContents += "\nMissing items:\n";
-        foreach (string missingItem in missingItems)
+        foreach (var missingItem in missingItemsDict)
         {
-            inventoryContents += missingItem + "\n";
-            Debug.Log(missingItem); 
+            inventoryContents += $"{missingItem.Key}: {missingItem.Value}\n";
+            Debug.Log($"{missingItem.Key}: {missingItem.Value}");
         }
     }
 
+    // Zwracanie wartości czy przepis może być wykonany
     return canCraft;
 }
-
-
 
 
 
@@ -288,18 +307,17 @@ public bool CheckRecipeIngredients(Recipe recipe, out string inventoryContents, 
         string inventoryContents;
         Dictionary<string, int> usedChestItems;
         Dictionary<string, int>? remainingChestItems;
-        if (CheckRecipeIngredients(recipe, out inventoryContents, out remainingChestItems, out usedChestItems))
+        Dictionary<string, int>? missingItemsDict;
+        if (CheckRecipeIngredients(recipe, out inventoryContents, out remainingChestItems, out usedChestItems, out missingItemsDict))
         {   
 
             Debug.Log("Item jest tworzony, sa skladniki");
             foreach (Ingredient ingredient in recipe.ingredients)
             {
                 RemoveItem(ingredient.name, ingredient.quantity);
-                RemoveItemsFromChest(remainingChestItems);
-
-                
+               
             }
-                
+                           RemoveItemsFromChest(usedChestItems);
 
             Debug.Log("Przedmiot zostal stworzony aby item dzialal");
        
