@@ -87,7 +87,7 @@ public Dictionary<string, int> GetItemsFromChestWithCounts()
 
     if (chestSlots == null)
     {
-        Debug.LogWarning("chestSlots is null");
+        Debug.LogWarning("Miejsce jest puste");
         return itemCounts;
     }
 
@@ -108,16 +108,16 @@ public Dictionary<string, int> GetItemsFromChestWithCounts()
                 itemCounts[itemName] = itemInSlot.count;
             }
 
-            Debug.Log($"Slot {i}: {itemName}, Quantity: {itemInSlot.count}");
+            Debug.Log($"Miejsce {i}: {itemName}, Ilosc: {itemInSlot.count}");
         }
         else
         {
-            Debug.Log($"Slot {i}: Empty");
+            Debug.Log($"Miejsce {i} jest puste");
         }
     }
     foreach (var item in itemCounts)
     {
-        Debug.Log($"Item: {item.Key}, Total Quantity: {item.Value}");
+        Debug.Log($"Przedmiot: {item.Key}, Ilosc: {item.Value}");
     }
 
     return itemCounts;  

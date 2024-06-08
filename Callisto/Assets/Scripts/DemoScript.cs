@@ -5,9 +5,7 @@ using UnityEngine;
 public class DemoScript : MonoBehaviour
 {
     public InventoryManager inventoryManager;
-
     public Item[] itemsToPickup;
-
     public Item item;
 
     private bool TryCraftingRecipe(Recipe recipe)
@@ -16,49 +14,58 @@ public class DemoScript : MonoBehaviour
         Dictionary<string, int> usedChestItems;
         Dictionary<string, int>? remainingChestItems;
         Dictionary<string, int>? missingItemsDict;
-        bool craft =
-            inventoryManager.CheckRecipeIngredients(recipe, out details, out remainingChestItems, out usedChestItems, out missingItemsDict);
-        if (craft)
+
+        bool canCraft = inventoryManager.CheckRecipeIngredients(recipe, out details, out remainingChestItems, out usedChestItems, out missingItemsDict);
+        if (canCraft)
         {
-            Debug.Log("Mozna stworzyc kilofa");
-            return craft;
+            Debug.Log("Recipe can be crafted.");
         }
         else
         {
-            Debug.Log("Nie mozna stworzyc kilofa");
-            Debug.Log (details);
-            return craft;
+            Debug.Log("Recipe cannot be crafted.");
+            Debug.Log(details);
         }
-    }
-    public void PickupItem(Item item)
-{
-    if (item == null) {
-        Debug.LogError("Item is null");
-        return;
-    }
-    if (inventoryManager == null) {
-        Debug.LogError("InventoryManager is not set");
-        return;
-    }
-    if (inventoryManager.IsInventoryFull()) {
-    } else {
-        if (inventoryManager.AddItem(item)) {
-            Debug.Log($"{item.itemName} has been added");
-            gameObject.SetActive(false);
-        } else {
-            Debug.Log($"{item.itemName} has not been added");
-        }
-    }
-}
 
-private void OnTriggerEnter(Collider other)
-{
-    if (other.CompareTag("Player")) {
-        if (item != null) {
-                PickupItem(item);
-        } else {
-            Debug.LogError("Item not set for trigger");
+        return canCraft;
+    }
+
+    public void PickupItem(Item itemToPickup)
+    {
+        if (itemToPickup == null)
+        {
+            return;
+        }
+
+        if (inventoryManager == null)
+        {
+            return;
+        }
+
+        if (inventoryManager.IsInventoryFull())
+        {
+            Debug.Log("Ekwipunek jest pelen");
+            return;
+        }
+
+        if (inventoryManager.AddItem(itemToPickup))
+        {
+            Debug.Log($"{itemToPickup.itemName} zostal dodany.");
+            gameObject.SetActive(false); 
+        }
+        else
+        {
+            Debug.Log($"{itemToPickup.itemName} nie zostal dodany.");
         }
     }
-}
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            if (item != null)
+            {
+                PickupItem(item);
+            }
+        }
+    }
 }

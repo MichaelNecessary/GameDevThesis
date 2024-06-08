@@ -111,7 +111,7 @@ public class FurnaceManager : MonoBehaviour
         InventoryItem oreSlotItem = oreSlot.GetComponentInChildren<InventoryItem>();
         if (fuelSlotItem == null || oreSlotItem == null)
         {
-            Debug.Log("Fuel or Ore slot item is null");
+            Debug.Log("Nie ma paliwa albo rudy");
             yield break;
         }
 
@@ -145,11 +145,11 @@ public class FurnaceManager : MonoBehaviour
                 }
             }
                   InventoryItem productItem = productSlot.GetComponentInChildren<InventoryItem>();
-                  Debug.Log("Product item" + productItem);
+                  Debug.Log("Nazwa produktu" + productItem);
             if (productItem == null)
             {
                      inventoryManager.SpawnNewItem(item, productSlot);
-                    Debug.Log("Ore count after decrement: " + productItem);
+                    Debug.Log("Liczba rud po zmniejszeniu: " + productItem);
                 }
                 else
                 {
