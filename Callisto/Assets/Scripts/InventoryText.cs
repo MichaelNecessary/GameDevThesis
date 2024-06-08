@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections; // Dodane, aby użyć IEnumerator
+using System.Collections;
 
 public class InventoryText : MonoBehaviour
 {
