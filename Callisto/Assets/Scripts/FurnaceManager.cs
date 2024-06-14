@@ -7,12 +7,14 @@ public class FurnaceManager : MonoBehaviour
     public InventorySlot fuelSlot;
     public InventorySlot oreSlot;
     public InventorySlot productSlot;
-    public Item item;
+    public Item ironIngot;
+    public Item goldIngot;
     public InventoryManager inventoryManager;
     public float smeltingTime = 10.0f;
 
     private int time;
     private int productAmount;
+    private Item productItem;
 
     void Update()
     {
@@ -61,7 +63,7 @@ public class FurnaceManager : MonoBehaviour
             Debug.Log("Ore slot item name: " + oreSlotItem.item.itemName);
             Debug.Log("Fuel slot item name: " + fuelSlotItem.item.itemName);
 
-            if (oreSlotItem.item.itemName == "IronOre" && fuelSlotItem.item.itemName == "Stick")
+            if ((oreSlotItem.item.itemName == "IronOre" || oreSlotItem.item.itemName == "GoldOre") && fuelSlotItem.item.itemName == "Stick")
             {
                 if (fuelSlotItem.count >= 3)
                 {
@@ -71,17 +73,26 @@ public class FurnaceManager : MonoBehaviour
                     {
                         time = 5;
                     }
-                    else if (oreSlotItem.count >= 70 && oreSlotItem.count < 90)
+                    else if (oreSlotItem.count >= 7 && oreSlotItem.count < 10)
                     {
                         time = 10;
                     }
-                    else if (oreSlotItem.count >= 90 && oreSlotItem.count < 100)
+                    else if (oreSlotItem.count >= 10 && oreSlotItem.count < 20)
                     {
                         time = 15;
                     }
-                    else if (oreSlotItem.count == 100)
+                    else if (oreSlotItem.count >= 20)
                     {
                         time = 20;
+                    }
+
+                    if (oreSlotItem.item.itemName == "IronOre")
+                    {
+                        productItem = ironIngot;
+                    }
+                    else if (oreSlotItem.item.itemName == "GoldOre")
+                    {
+                        productItem = goldIngot;
                     }
 
                     return true;
@@ -111,7 +122,7 @@ public class FurnaceManager : MonoBehaviour
         InventoryItem oreSlotItem = oreSlot.GetComponentInChildren<InventoryItem>();
         if (fuelSlotItem == null || oreSlotItem == null)
         {
-            Debug.Log("Nie ma paliwa albo rudy");
+            Debug.Log("No fuel or ore");
             yield break;
         }
 
@@ -144,21 +155,23 @@ public class FurnaceManager : MonoBehaviour
                     oreSlotItem.RefreshCount();
                 }
             }
-                  InventoryItem productItem = productSlot.GetComponentInChildren<InventoryItem>();
-                  Debug.Log("Nazwa produktu" + productItem);
-            if (productItem == null)
-            {
-                     inventoryManager.SpawnNewItem(item, productSlot);
-                    Debug.Log("Liczba rud po zmniejszeniu: " + productItem);
-                }
-                else
-                {
-                    productItem.count+=productAmount;
-                    productItem.RefreshCount();
-                }
             
+            InventoryItem productSlotItem = productSlot.GetComponentInChildren<InventoryItem>();
+            if (productSlotItem == null)
+            {
+                inventoryManager.SpawnNewItem(productItem, productSlot);
+                productSlotItem = productSlot.GetComponentInChildren<InventoryItem>();
+                productSlotItem.count = productAmount;
+                productSlotItem.RefreshCount();
+            }
+            else
+            {
+                productSlotItem.count += productAmount;
+                productSlotItem.RefreshCount();
+            }
         }
     }
+
     public void CreateNewObject()
     {
         StartSmelting();
