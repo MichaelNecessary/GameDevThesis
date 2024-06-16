@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c2a9e5ba0f47fe4c9781e4e61424026, type: 3}
   m_Name: GoldOre
   m_EditorClassIdentifier: 
-  itemName: IronOre
-  itemID: 2
+  itemName: GoldOre
+  itemID: 10
   type: 0
   actionType: 1
   range: {x: 5, y: 4}

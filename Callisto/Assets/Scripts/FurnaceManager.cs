@@ -7,14 +7,15 @@ public class FurnaceManager : MonoBehaviour
     public InventorySlot fuelSlot;
     public InventorySlot oreSlot;
     public InventorySlot productSlot;
-    public Item ironIngot;
-    public Item goldIngot;
+    public Item ironBarItem;
+    public Item goldBarItem;
     public InventoryManager inventoryManager;
     public float smeltingTime = 10.0f;
+    public InventoryText inventoryText;
 
     private int time;
     private int productAmount;
-    private Item productItem;
+    private Item currentProductItem;
 
     void Update()
     {
@@ -36,82 +37,63 @@ public class FurnaceManager : MonoBehaviour
     bool CheckOreAndFuel(out string inventoryContents)
     {
         inventoryContents = "";
-        if (fuelSlot == null)
-        {
-            Debug.Log("Fuel slot is null");
-            return false;
-        }
-        if (oreSlot == null)
-        {
-            Debug.Log("Ore slot is null");
-            return false;
-        }
-
+        
         InventoryItem fuelSlotItem = fuelSlot.GetComponentInChildren<InventoryItem>();
         InventoryItem oreSlotItem = oreSlot.GetComponentInChildren<InventoryItem>();
         if (fuelSlotItem == null)
         {
-            Debug.Log("Fuel slot item is missing");
+            inventoryText.DisplayMessage("Brak opa³u");
         }
         if (oreSlotItem == null)
         {
-            Debug.Log("Ore slot item is missing");
+            inventoryText.DisplayMessage("Brak ród  metalu");
         }
 
         if (oreSlotItem != null && fuelSlotItem != null)
         {
-            Debug.Log("Ore slot item name: " + oreSlotItem.item.itemName);
-            Debug.Log("Fuel slot item name: " + fuelSlotItem.item.itemName);
-
+           
             if ((oreSlotItem.item.itemName == "IronOre" || oreSlotItem.item.itemName == "GoldOre") && fuelSlotItem.item.itemName == "Stick")
             {
                 if (fuelSlotItem.count >= 3)
                 {
-                    productAmount = (int)Mathf.Ceil(oreSlotItem.count * 0.5f);
+                    productAmount = oreSlotItem.count;
 
-                    if (oreSlotItem.count >= 3 && oreSlotItem.count < 7)
+                    if (oreSlotItem.count == 1)
                     {
-                        time = 5;
+                        time = 1;
                     }
-                    else if (oreSlotItem.count >= 7 && oreSlotItem.count < 10)
+                    else if (oreSlotItem.count == 2)
                     {
-                        time = 10;
+                        time = 2;
                     }
-                    else if (oreSlotItem.count >= 10 && oreSlotItem.count < 20)
+                    else if (oreSlotItem.count == 3)
                     {
-                        time = 15;
+                        time = 3;
                     }
-                    else if (oreSlotItem.count >= 20)
+                    else if (oreSlotItem.count == 4)
                     {
-                        time = 20;
+                        time = 4;
                     }
 
-                    if (oreSlotItem.item.itemName == "IronOre")
-                    {
-                        productItem = ironIngot;
-                    }
-                    else if (oreSlotItem.item.itemName == "GoldOre")
-                    {
-                        productItem = goldIngot;
-                    }
+                    currentProductItem = oreSlotItem.item.itemName == "IronOre" ? ironBarItem : goldBarItem;
 
                     return true;
                 }
                 else
                 {
-                    Debug.Log("Not enough fuel");
+                    inventoryText.DisplayMessage("Brak paliwa");
                     return false;
                 }
             }
             else
             {
-                Debug.Log("Invalid items for smelting");
+                inventoryText.DisplayMessage("Przedmiot nienadaje siê do przetopienia");
                 return false;
             }
         }
         else
         {
-            Debug.Log("Missing items");
+            inventoryText.DisplayMessage("Brak przedmiotu");
             return false;
         }
     }
@@ -122,13 +104,13 @@ public class FurnaceManager : MonoBehaviour
         InventoryItem oreSlotItem = oreSlot.GetComponentInChildren<InventoryItem>();
         if (fuelSlotItem == null || oreSlotItem == null)
         {
-            Debug.Log("No fuel or ore");
+            inventoryText.DisplayMessage("Brak sk³adników");
             yield break;
         }
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < time; i++)
         {
-            yield return new WaitForSeconds(time / 5);
+            yield return new WaitForSeconds(1);
             if (fuelSlotItem != null)
             {
                 fuelSlotItem.count--;
@@ -155,19 +137,20 @@ public class FurnaceManager : MonoBehaviour
                     oreSlotItem.RefreshCount();
                 }
             }
-            
-            InventoryItem productSlotItem = productSlot.GetComponentInChildren<InventoryItem>();
-            if (productSlotItem == null)
+
+            InventoryItem productItem = productSlot.GetComponentInChildren<InventoryItem>();
+            if (productItem == null)
             {
-                inventoryManager.SpawnNewItem(productItem, productSlot);
-                productSlotItem = productSlot.GetComponentInChildren<InventoryItem>();
-                productSlotItem.count = productAmount;
-                productSlotItem.RefreshCount();
+                inventoryManager.SpawnNewItem(currentProductItem, productSlot);
+                productItem = productSlot.GetComponentInChildren<InventoryItem>();
+                productItem.count = 1;
+                productItem.RefreshCount();
             }
             else
             {
-                productSlotItem.count += productAmount;
-                productSlotItem.RefreshCount();
+                productItem.count++;
+                productItem.RefreshCount();
+                inventoryText.DisplaytSmeltItemMessage(productItem);
             }
         }
     }
