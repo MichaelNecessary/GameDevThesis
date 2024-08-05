@@ -5,7 +5,7 @@
 public class PlayerBHV : MonoBehaviour
 {
     public float moveSpeed = 5f;
-    public float sprintMultiplier = 1.5f;
+    public float sprintMultiplier = 2f;
     public Camera cam;
     public static string save;
     Rigidbody rigidBody;
