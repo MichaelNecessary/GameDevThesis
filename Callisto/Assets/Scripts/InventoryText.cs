@@ -18,11 +18,18 @@ public class InventoryText : MonoBehaviour
 
     public void DisplayItemNotCreateMessage(Item item)
     {
-        itemAddedText.text = $"Item {item.name} nie zosta³ tworzony";
+        itemAddedText.text = $"Item {item.name} nie zostaï¿½ tworzony";
         StartCoroutine(ClearItemAddedMessage(4));
     }
 
     public void DisplayCounterMessage(Item item, int counter)
+    {
+        itemAddedText.text = $"Tworzony jest przedmiot {item.name} zostalo czasu: {counter}";
+        StartCoroutine(ClearItemAddedMessage(1));
+    }
+
+    
+    public void DisplayCounterMessage2( InventoryItem item , int counter)
     {
         itemAddedText.text = $"Tworzony jest przedmiot {item.name} zostalo czasu: {counter}";
         StartCoroutine(ClearItemAddedMessage(1));
@@ -34,9 +41,9 @@ public class InventoryText : MonoBehaviour
         StartCoroutine(ClearItemAddedMessage(10));
     }
 
-    public void DisplaytSmeltItemMessage(InventoryItem item)
+    public void DisplaytSmeltItemMessage(InventoryItem item, int time)
     {
-        itemAddedText.text = $"Zosta³ stworzony {item.name}";
+        itemAddedText.text = $"Przedmiot {item.name} zostalo czasu {time}";
         StartCoroutine(ClearItemAddedMessage(2));
     }
 

@@ -42,11 +42,11 @@ public class FurnaceManager : MonoBehaviour
         InventoryItem oreSlotItem = oreSlot.GetComponentInChildren<InventoryItem>();
         if (fuelSlotItem == null)
         {
-            inventoryText.DisplayMessage("Brak opa³u");
+            inventoryText.DisplayMessage("Brak opaï¿½u");
         }
         if (oreSlotItem == null)
         {
-            inventoryText.DisplayMessage("Brak ród  metalu");
+            inventoryText.DisplayMessage("Brak rï¿½d  metalu");
         }
 
         if (oreSlotItem != null && fuelSlotItem != null)
@@ -87,7 +87,7 @@ public class FurnaceManager : MonoBehaviour
             }
             else
             {
-                inventoryText.DisplayMessage("Przedmiot nienadaje siê do przetopienia");
+                inventoryText.DisplayMessage("Przedmiot nienadaje siï¿½ do przetopienia");
                 return false;
             }
         }
@@ -104,7 +104,7 @@ public class FurnaceManager : MonoBehaviour
         InventoryItem oreSlotItem = oreSlot.GetComponentInChildren<InventoryItem>();
         if (fuelSlotItem == null || oreSlotItem == null)
         {
-            inventoryText.DisplayMessage("Brak sk³adników");
+            inventoryText.DisplayMessage("Brak skï¿½adnikï¿½w");
             yield break;
         }
 
@@ -147,16 +147,16 @@ public class FurnaceManager : MonoBehaviour
                 productItem.RefreshCount();
             }
             else
-            {
+            {   
                 productItem.count++;
+                inventoryText.DisplaytSmeltItemMessage(productItem, i);
                 productItem.RefreshCount();
-                inventoryText.DisplaytSmeltItemMessage(productItem);
             }
         }
     }
 
     public void CreateNewObject()
-    {
+    {   
         StartSmelting();
     }
 }
