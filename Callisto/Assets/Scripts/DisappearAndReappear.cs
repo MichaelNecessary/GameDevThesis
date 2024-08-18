@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class DisappearAndReappear : MonoBehaviour
 {
-    public float disappearDistance = 5f;
+    private float disappearDistance = 10f;
     private Transform player;
     private Renderer objectRenderer;
 
