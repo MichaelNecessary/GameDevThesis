@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class InventorySlot : MonoBehaviour, IDropHandler
 {
-    public Image image; // Przypisz komponent Image
+    public Image image; 
 
     public Color selectedColor = Color.yellow;
     public Color notSelectedColor = Color.white;

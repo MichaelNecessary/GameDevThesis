@@ -27,7 +27,7 @@ public class ChooseItem : MonoBehaviour
     {
         for (int i = 0; i < inventorySlots.Length; i++)
         {
-            // Sprawdź, który przycisk numeryczny jest naciskany
+
             if (Input.GetKeyDown(KeyCode.Alpha1 + i))
             {
                 ChangeSelectedSlot(i);
@@ -47,7 +47,6 @@ public class ChooseItem : MonoBehaviour
             inventorySlots[newValue].Select();
             selectedSlot = newValue;
 
-            // Pobierz nazwę wybranego przedmiotu
             selectedItemName = inventorySlots[newValue].GetComponentInChildren<InventoryItem>().name;
             Debug.Log(selectedItemName);
         }

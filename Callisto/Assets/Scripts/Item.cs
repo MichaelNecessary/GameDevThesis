@@ -10,7 +10,7 @@ public class Item : ScriptableObject
     public Vector2Int range = new Vector2Int(5, 4);
     public bool stackable = true;
     public Sprite image;
-    public GameObject prefab; // Add this line to include a reference to the item's prefab
+    public GameObject prefab; 
 }
 
 

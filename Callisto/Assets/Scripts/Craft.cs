@@ -109,7 +109,7 @@ public class Crafting : MonoBehaviour
 
     public void CraftFurnace()
     {
-        //CraftItem(furnaceRecipe);
+       
         CraftItem(trophyRecipe);
     }
 
